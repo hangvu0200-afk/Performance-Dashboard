@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Vũ Bích Hằng — Marketing Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#08090b;
+  --bg-soft:#0c0d11;
+  --panel:#0f1115;
+  --panel-2:#14171d;
+  --line:rgba(255,255,255,.07);
+  --line-2:rgba(255,255,255,.12);
+  --text:#e7e9ee;
+  --mute:rgba(231,233,238,.55);
+  --mute-2:rgba(231,233,238,.32);
+  --accent:#7ec8e3;        /* baby blue */
+  --accent-soft:#a8d8ea;
+  --accent-ink:#020d12;
+  --peach:#f2a97e;         /* warm peach accent */
+  --peach-soft:#f7c4a8;
+  --up:#7ec8e3;
+  --down:#f2a97e;
+  --grid:rgba(255,255,255,.035);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:"Geist","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.mono{font-family:"JetBrains Mono",monospace}
+
+/* BG */
+.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse at 50% 0%,rgba(0,0,0,.9),rgba(0,0,0,.2) 70%,transparent 100%);
+  animation:grid-drift 80s linear infinite}
+@keyframes grid-drift{from{background-position:0 0,0 0}to{background-position:64px 64px,64px 64px}}
+.bg-vignette{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(800px 500px at 80% -10%,rgba(126,200,227,.07),transparent 60%),
+    radial-gradient(700px 500px at -10% 30%,rgba(242,169,126,.05),transparent 70%)}
+
+/* CURSOR SPOT */
+.cursor-spot{position:fixed;top:0;left:0;width:640px;height:640px;pointer-events:none;z-index:0;
+  background:radial-gradient(circle at center,rgba(126,200,227,.09),rgba(242,169,126,.04) 35%,transparent 60%);
+  mix-blend-mode:screen;filter:blur(20px);will-change:transform}
+
+#app{position:relative;z-index:1}
+.container{max-width:1400px;margin:0 auto;padding:0 40px}
+
+/* NAV / HUD */
+.hud{position:sticky;top:0;z-index:50;background:rgba(8,9,11,.75);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hud-inner{height:52px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.hud-name{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;color:var(--accent)}
+.hud-nav{display:flex;gap:28px}
+.hud-nav a{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);transition:.2s}
+.hud-nav a:hover{color:var(--text)}
+.hud-time{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mute-2)}
+
+/* MARQUEE */
+.marquee-wrap{border-bottom:1px solid var(--line);overflow:hidden;background:rgba(255,255,255,.015)}
+.marquee-track{display:flex;width:max-content;animation:marq 55s linear infinite}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.marquee-item{display:inline-flex;align-items:center;gap:14px;padding:12px 32px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--mute);border-right:1px solid var(--line);white-space:nowrap}
+.marquee-item b{color:var(--text);font-weight:600}
+.marquee-item .up{color:var(--accent)}
+.marquee-item .down{color:var(--peach)}
+.marquee-sep{color:var(--mute-2)}
+
+/* HERO */
+.hero{padding:80px 0 60px}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;min-height:480px}
+.hero-left{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.hero-left::before{content:"";position:absolute;top:-80px;right:-80px;width:320px;height:320px;
+  background:radial-gradient(circle,rgba(126,200,227,.12),transparent 65%);pointer-events:none}
+.hero-eyebrow{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);position:relative;display:inline-block}
+.pulse-dot::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px solid var(--accent);opacity:.6;animation:pulse 2s ease infinite}
+@keyframes pulse{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.4);opacity:0}}
+h1.hero-name{font-size:clamp(52px,5vw,76px);font-weight:700;letter-spacing:-.03em;line-height:.95;margin-bottom:12px}
+h1.hero-name .accent{color:var(--accent)}
+.hero-title{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:28px}
+.hero-bio{font-size:14.5px;line-height:1.7;color:var(--mute);max-width:440px;margin-bottom:36px}
+.hero-contact{display:flex;flex-direction:column;gap:8px}
+.hero-contact a{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--mute);display:flex;align-items:center;gap:10px;transition:.2s}
+.hero-contact a:hover{color:var(--accent)}
+.contact-arrow{color:var(--accent)}
+
+.hero-right{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px}
+.kpi{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:24px 22px;position:relative;overflow:hidden;transition:.3s ease;cursor:default}
+.kpi:hover{border-color:rgba(126,200,227,.3);background:var(--panel-2)}
+.kpi-lbl{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+.kpi-val{font-family:"JetBrains Mono",monospace;font-size:38px;font-weight:500;letter-spacing:-.02em;line-height:1;color:var(--text)}
+.kpi-val .unit{font-size:18px;color:var(--accent)}
+.kpi-sub{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mute);margin-top:8px}
+.kpi-glow{position:absolute;top:-40px;right:-40px;width:140px;height:140px;
+  background:radial-gradient(circle,rgba(126,200,227,.1),transparent 65%);pointer-events:none}
+
+/* SECTION */
+section{padding:80px 0}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:40px}
+.section-head h2{font-size:clamp(36px,4vw,52px);font-weight:700;letter-spacing:-.025em;line-height:.95}
+.section-head h2 .acdot{color:var(--accent)}
+.section-num{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.14em;color:var(--mute);text-transform:uppercase}
+
+/* REVENUE SECTION */
+.chart-panel{border:1px solid var(--line);border-radius:16px;background:var(--panel);padding:32px;margin-bottom:18px}
+.chart-title{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:24px;display:flex;align-items:center;gap:8px}
+.chart-title .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.chart-wrap{height:260px;position:relative}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+/* KOC SECTION */
+.koc-section{background:rgba(255,255,255,.015);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.koc-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+.koc-kpi{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:24px 20px;text-align:center;transition:.3s}
+.koc-kpi:hover{border-color:rgba(126,200,227,.25)}
+.koc-kpi .val{font-family:"JetBrains Mono",monospace;font-size:40px;font-weight:500;letter-spacing:-.02em;color:var(--accent);line-height:1;margin-bottom:6px}
+.koc-kpi .unit{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--peach);margin-bottom:6px}
+.koc-kpi .lbl{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+
+/* KOC TIMELINE */
+.koc-timeline{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+.koc-timeline-head{padding:18px 24px;border-bottom:1px solid var(--line);font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);display:flex;justify-content:space-between}
+.koc-rows{}
+.koc-row{display:grid;grid-template-columns:80px 1fr 120px 100px;gap:20px;align-items:center;padding:14px 24px;border-bottom:1px solid var(--line);transition:.2s}
+.koc-row:last-child{border-bottom:none}
+.koc-row:hover{background:rgba(126,200,227,.04)}
+.koc-month{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--mute);letter-spacing:.08em}
+.koc-bar-wrap{height:4px;background:rgba(255,255,255,.06);border-radius:2px;position:relative}
+.koc-bar-video{position:absolute;top:0;left:0;height:100%;background:var(--accent);border-radius:2px;transition:width 1.5s ease}
+.koc-bar-live{position:absolute;top:0;height:100%;background:var(--peach);border-radius:2px;transition:width 1.5s ease}
+.koc-gmv{font-family:"JetBrains Mono",monospace;font-size:14px;font-weight:500;color:var(--text);text-align:right}
+.koc-cp{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mute);text-align:right}
+
+/* CHANNELS */
+.channel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.channel-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:28px 24px;transition:.3s;position:relative;overflow:hidden}
+.channel-card:hover{border-color:rgba(126,200,227,.25);transform:translateY(-3px)}
+.channel-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px}
+.channel-card.tiktok::before{background:linear-gradient(90deg,var(--accent),var(--accent-soft))}
+.channel-card.social::before{background:linear-gradient(90deg,var(--peach),var(--peach-soft))}
+.channel-card.shopee::before{background:linear-gradient(90deg,#f97316,#fb923c)}
+.channel-card.b2b::before{background:linear-gradient(90deg,var(--mute-2),rgba(255,255,255,.2))}
+.ch-name{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:14px}
+.ch-val{font-family:"JetBrains Mono",monospace;font-size:32px;font-weight:500;letter-spacing:-.02em;color:var(--text);margin-bottom:6px}
+.ch-growth{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--accent);margin-bottom:16px}
+.ch-bar-wrap{height:3px;background:rgba(255,255,255,.06);border-radius:2px}
+.ch-bar{height:100%;border-radius:2px;transition:width 1.8s ease}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kpi-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:28px 24px;transition:.3s}
+.kpi-card:hover{border-color:rgba(126,200,227,.22);background:var(--panel-2)}
+.kpi-icon{font-size:22px;margin-bottom:18px;opacity:.6}
+.kpi-card-val{font-family:"JetBrains Mono",monospace;font-size:40px;font-weight:500;letter-spacing:-.02em;color:var(--text);margin-bottom:6px;line-height:1}
+.kpi-card-val .accent{color:var(--accent)}
+.kpi-card-name{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+.kpi-card-desc{font-size:13px;color:var(--mute);line-height:1.6}
+
+/* CAREER */
+.career-item{display:grid;grid-template-columns:200px 1fr;gap:48px;padding:36px 0;border-bottom:1px solid var(--line)}
+.career-item:first-child{border-top:1px solid var(--line)}
+.career-period{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.06em;color:var(--mute);padding-top:4px}
+.career-role{font-size:22px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px}
+.career-co{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+.career-desc{font-size:14px;color:var(--mute);line-height:1.75}
+.career-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.career-tag{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line-2);padding:4px 10px;border-radius:6px}
+
+/* FOOTER */
+footer{border-top:1px solid var(--line);padding:60px 0 40px;margin-top:40px}
+.footer-inner{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:start}
+.footer-name{font-size:clamp(36px,5vw,64px);font-weight:700;letter-spacing:-.03em;line-height:.95;margin-bottom:16px}
+.footer-name .accent{color:var(--accent)}
+.footer-sub{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:28px}
+.footer-links{display:flex;gap:16px;flex-wrap:wrap}
+.footer-link{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border:1px solid var(--line-2);border-radius:999px;font-size:13px;color:var(--text);transition:.2s}
+.footer-link:hover{background:rgba(255,255,255,.04);border-color:rgba(126,200,227,.3)}
+.footer-link.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.footer-link.primary:hover{filter:brightness(1.08)}
+.footer-copy{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mute-2);margin-top:48px}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:none}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+
+@media(max-width:900px){
+  .container{padding:0 18px}
+  .hero-grid{grid-template-columns:1fr}
+  .hero-right{grid-template-columns:1fr 1fr}
+  .koc-kpis{grid-template-columns:1fr 1fr}
+  .channel-grid{grid-template-columns:1fr 1fr}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+  .chart-grid{grid-template-columns:1fr}
+  .career-item{grid-template-columns:1fr;gap:12px}
+  .footer-inner{grid-template-columns:1fr}
+  .hud-nav{display:none}
+  .koc-row{grid-template-columns:70px 1fr 100px}
+  .koc-cp{display:none}
+}
+
+/* SKILLS SECTION */
+.sys-card{background:var(--panel);padding:24px 20px;transition:.2s}
+.sys-card:hover{background:var(--panel-2)}
+.sys-icon{font-size:24px;margin-bottom:12px}
+.sys-title{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.sys-items{display:flex;flex-direction:column;gap:6px}
+.sys-item{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mute);display:flex;align-items:center;gap:6px}
+.sys-item::before{content:"—";color:var(--mute-2)}
+
+.skill-row{display:flex;flex-direction:column;gap:5px}
+.skill-row-top{display:flex;justify-content:space-between;align-items:center}
+.skill-name{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--text);letter-spacing:.04em}
+.skill-pct{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--mute)}
+.skill-bar-bg{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.skill-bar-fill{height:100%;border-radius:2px;transition:width 1.5s cubic-bezier(.2,.7,.2,1);width:0}
+
+.pillar-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.pillar-item:last-child{border-bottom:none}
+.pillar-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.pillar-text{font-size:12.5px;color:var(--mute);line-height:1.5}
+.pillar-tag{font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute-2);margin-top:2px}
+
+.ct-item{flex:1;min-width:120px;padding:20px 18px;border-right:1px solid var(--line);position:relative}
+.ct-item:last-child{border-right:none}
+.ct-year{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--accent);letter-spacing:.12em;margin-bottom:8px}
+.ct-co{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.ct-role{font-family:"JetBrains Mono",monospace;font-size:9.5px;color:var(--mute);letter-spacing:.06em;margin-bottom:8px}
+.ct-industry{font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--line-2);border-radius:4px;color:var(--mute-2);display:inline-block}
+
+@media(max-width:900px){
+  .skills-main-grid{grid-template-columns:1fr !important}
+}
+
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-vignette"></div>
+<div class="cursor-spot" id="spot"></div>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="container">
+    <div class="hud-inner">
+      <span class="hud-name mono">VU.BICH.HANG</span>
+      <nav class="hud-nav">
+        <a href="#revenue">Revenue</a>
+        <a href="#koc">KOC</a>
+        <a href="#channels">Channels</a>
+        <a href="#kpis">KPIs</a>
+        <a href="#career">Career</a>
+      </nav>
+      <span class="hud-time mono" id="hud-time"></span>
+    </div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee"></div>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="overview">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-left reveal">
+        <div>
+          <div class="hero-eyebrow"><span class="pulse-dot"></span> Marketing Manager · TP Solar 2025</div>
+          <h1 class="hero-name">Vũ <span class="accent">Bích</span><br>Hằng<span style="color:var(--accent)">.</span></h1>
+          <div class="hero-title mono">Marketing Manager · 5+ Năm Kinh Nghiệm</div>
+          <p class="hero-bio">Xây dựng & vận hành hệ thống Marketing từ 0. Dẫn dắt team 12+ người, tăng trưởng doanh thu +106% trong 12 tháng. Chuyên sâu KOC ecosystem, TikTok commerce và chiến lược đa kênh.</p>
+        </div>
+        <div class="hero-contact">
+          <a href="mailto:hangvu0200@gmail.com"><span class="contact-arrow">→</span> hangvu0200@gmail.com</a>
+          <a href="tel:0865918400"><span class="contact-arrow">→</span> 0865918400</a>
+          <a href="#"><span class="contact-arrow">→</span> Hà Nội, Việt Nam</a>
+        </div>
+      </div>
+
+      <div class="hero-right reveal" style="animation-delay:.15s">
+        <div class="kpi">
+          <div class="kpi-glow"></div>
+          <div class="kpi-lbl">Doanh thu 2025</div>
+          <div class="kpi-val"><span class="num-count" data-target="115.2">0</span><span class="unit">B</span></div>
+          <div class="kpi-sub">VNĐ · Tổng năm</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-glow" style="background:radial-gradient(circle,rgba(242,169,126,.1),transparent 65%)"></div>
+          <div class="kpi-lbl">Tăng trưởng</div>
+          <div class="kpi-val">+<span class="num-count" data-target="106">0</span><span class="unit" style="color:var(--peach)">%</span></div>
+          <div class="kpi-sub">T1 → T12 / 2025</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-glow"></div>
+          <div class="kpi-lbl">KOC Ecosystem</div>
+          <div class="kpi-val"><span class="num-count" data-target="450">0</span></div>
+          <div class="kpi-sub">Đối tác đã hợp tác · 80 KOS thường xuyên</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-glow" style="background:radial-gradient(circle,rgba(242,169,126,.1),transparent 65%)"></div>
+          <div class="kpi-lbl">Shopee tăng trưởng</div>
+          <div class="kpi-val">+<span class="num-count" data-target="183">0</span><span class="unit" style="color:var(--peach)">%</span></div>
+          <div class="kpi-sub">TikTok Shop tăng trưởng</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVENUE -->
+<section id="revenue">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Hành trình<br>doanh thu<span class="acdot">.</span></h2>
+      <div>
+        <div class="section-num mono">01 / REVENUE</div>
+      </div>
+    </div>
+    <div class="chart-panel reveal">
+      <div class="chart-title"><span class="dot"></span>Doanh thu theo tháng 2025 (tỷ VNĐ)</div>
+      <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-panel reveal" style="animation-delay:.1s">
+        <div class="chart-title"><span class="dot"></span>TikTok Shop vs Shopee</div>
+        <div class="chart-wrap"><canvas id="channelChart"></canvas></div>
+      </div>
+      <div class="chart-panel reveal" style="animation-delay:.2s">
+        <div class="chart-title"><span class="dot" style="background:var(--peach)"></span>Phân bổ doanh thu 2025</div>
+        <div class="chart-wrap"><canvas id="donutChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KOC SYSTEM -->
+<section class="koc-section" id="koc">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>KOC<br>Ecosystem<span class="acdot">.</span></h2>
+      <div>
+        <div class="section-num mono">02 / KOC SYSTEM</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--mute);margin-top:4px">Bắt đầu T4/2025</div>
+      </div>
+    </div>
+    <div class="koc-kpis reveal">
+      <div class="koc-kpi"><div class="val">450</div><div class="unit">đối tác KOC</div><div class="lbl">Đã hợp tác</div></div>
+      <div class="koc-kpi"><div class="val">80</div><div class="unit">KOS thường xuyên</div><div class="lbl">Video + Livestream</div></div>
+      <div class="koc-kpi"><div class="val">190M</div><div class="unit">lượt xem</div><div class="lbl">Tổng view</div></div>
+      <div class="koc-kpi"><div class="val">50K</div><div class="unit">bình luận</div><div class="lbl">Tương tác</div></div>
+    </div>
+    <div class="koc-timeline reveal" style="animation-delay:.15s">
+      <div class="koc-timeline-head">
+        <span>Tháng</span><span>Video Aff / Live (GMV)</span><span style="text-align:right">GMV tổng</span><span style="text-align:right">CP video</span>
+      </div>
+      <div class="koc-rows" id="koc-rows"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CHANNELS -->
+<section id="channels">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Breakdown<br>theo kênh<span class="acdot">.</span></h2>
+      <div><div class="section-num mono">03 / CHANNELS</div></div>
+    </div>
+    <div class="channel-grid reveal">
+      <div class="channel-card tiktok">
+        <div class="ch-name">TikTok Shop</div>
+        <div class="ch-val">55.8<span style="font-size:18px;color:var(--accent)">B</span></div>
+        <div class="ch-growth">↑ +183% · #1 ngành đèn NLMT</div>
+        <div class="ch-bar-wrap"><div class="ch-bar" style="width:100%;background:linear-gradient(90deg,var(--accent),var(--accent-soft))"></div></div>
+      </div>
+      <div class="channel-card social">
+        <div class="ch-name">Social Media</div>
+        <div class="ch-val">27.8<span style="font-size:18px;color:var(--peach)">B</span></div>
+        <div class="ch-growth" style="color:var(--peach)">↑ +74% · Facebook + Zalo</div>
+        <div class="ch-bar-wrap"><div class="ch-bar" style="width:50%;background:linear-gradient(90deg,var(--peach),var(--peach-soft))"></div></div>
+      </div>
+      <div class="channel-card shopee">
+        <div class="ch-name">Shopee</div>
+        <div class="ch-val">19.0<span style="font-size:18px;color:#fb923c">B</span></div>
+        <div class="ch-growth" style="color:#fb923c">↑ +261% · Nhanh nhất</div>
+        <div class="ch-bar-wrap"><div class="ch-bar" style="width:34%;background:linear-gradient(90deg,#f97316,#fb923c)"></div></div>
+      </div>
+      <div class="channel-card b2b">
+        <div class="ch-name">B2B + Dự án</div>
+        <div class="ch-val">12.5<span style="font-size:18px;color:var(--mute)">B</span></div>
+        <div class="ch-growth" style="color:var(--mute)">Enterprise channel</div>
+        <div class="ch-bar-wrap"><div class="ch-bar" style="width:22%;background:rgba(255,255,255,.2)"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KPIs -->
+<section id="kpis" style="background:rgba(255,255,255,.015);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Marketing<br>Achievements 2025<span class="acdot">.</span></h2>
+      <div><div class="section-num mono">04 / ACHIEVEMENTS</div></div>
+    </div>
+    <div class="kpi-grid reveal">
+      <div class="kpi-card"><div class="kpi-icon">◉</div><div class="kpi-card-val">185.3<span class="accent">M</span></div><div class="kpi-card-name">Brand Impressions</div><div class="kpi-card-desc">Tổng lượt hiển thị thương hiệu trên tất cả kênh trong 2025</div></div>
+      <div class="kpi-card"><div class="kpi-icon">◈</div><div class="kpi-card-val">76.5<span class="accent">K</span></div><div class="kpi-card-name">Đơn hàng</div><div class="kpi-card-desc">Tổng đơn qua kênh marketing. CR TikTok 4.75%, Shopee 30%</div></div>
+      <div class="kpi-card"><div class="kpi-icon">◇</div><div class="kpi-card-val" style="color:var(--peach)">35<span style="font-size:20px;color:var(--peach)">%</span></div><div class="kpi-card-name">Tỷ lệ quay lại</div><div class="kpi-card-desc">26.561 khách cũ quay lại — retention cao hơn benchmark ngành</div></div>
+      <div class="kpi-card"><div class="kpi-icon">◆</div><div class="kpi-card-val">8.04<span class="accent">M</span></div><div class="kpi-card-name">Traffic / Lead</div><div class="kpi-card-desc">Tổng lượt truy cập từ các kênh marketing trong năm</div></div>
+      <div class="kpi-card"><div class="kpi-icon">◎</div><div class="kpi-card-val">4.75<span class="accent">%</span></div><div class="kpi-card-name">CR TikTok</div><div class="kpi-card-desc">Tỷ lệ chuyển đổi TikTok — vượt 3x so với benchmark ngành</div></div>
+      <div class="kpi-card"><div class="kpi-icon">◐</div><div class="kpi-card-val" style="color:var(--peach)">+106<span style="font-size:20px;color:var(--peach)">%</span></div><div class="kpi-card-name">Revenue Growth</div><div class="kpi-card-desc">6.39B (T1) → 13.15B (T12) trong 12 tháng</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CAREER -->
+<section id="career">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Kinh nghiệm<br>làm việc<span class="acdot">.</span></h2>
+      <div><div class="section-num mono">05 / CAREER</div></div>
+    </div>
+    <div class="career-item reveal">
+      <div class="career-period mono">03/2025 — 03/2026</div>
+      <div>
+        <div class="career-role">Trưởng bộ phận Truyền thông Marketing</div>
+        <div class="career-co">Công ty Cổ phần TP Solar</div>
+        <div class="career-desc">Xây dựng & vận hành toàn bộ hệ thống Marketing từ đầu. Quản lý đội ngũ 12+ nhân sự, triển khai chiến lược đa kênh. Xây dựng KOC ecosystem với 450 đối tác, 80 KOS thường xuyên, mang về 190M view. Tăng trưởng doanh thu +106% trong 12 tháng. TikTok Shop +183%, Shopee +261%.</div>
+        <div class="career-tags">
+          <span class="career-tag">TikTok Shop</span><span class="career-tag">KOC Management</span><span class="career-tag">Performance Marketing</span><span class="career-tag">Team Leadership</span><span class="career-tag">Budget Planning</span>
+        </div>
+      </div>
+    </div>
+    <div class="career-item reveal" style="animation-delay:.1s">
+      <div class="career-period mono">04/2022 — 02/2025</div>
+      <div>
+        <div class="career-role">Trưởng phòng Marketing</div>
+        <div class="career-co">Công ty Cổ phần Lason Việt Nam</div>
+        <div class="career-desc">Triển khai các dự án truyền thông - marketing tổng thể. Xây dựng hình ảnh thương hiệu trên các kênh số. Quản lý vận hành Facebook, TikTok, YouTube, Website. Tổ chức hệ thống content và trực tiếp sản xuất.</div>
+        <div class="career-tags">
+          <span class="career-tag">Brand Building</span><span class="career-tag">Content Strategy</span><span class="career-tag">Digital Marketing</span><span class="career-tag">Social Media</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- SKILLS SECTION -->
+<section id="skills" style="background:rgba(255,255,255,.015);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2>Năng lực<br>& Kỹ năng<span class="acdot">.</span></h2>
+      <div><div class="section-num mono">06 / CAPABILITIES</div></div>
+    </div>
+
+    <!-- RADAR CHART + STRENGTH BARS -->
+    <div style="display:grid;grid-template-columns:420px 1fr;gap:20px;margin-bottom:20px" class="reveal skills-main-grid">
+      <div class="chart-panel" style="display:flex;flex-direction:column;justify-content:center">
+        <div class="chart-title"><span class="dot"></span>Radar năng lực tổng thể</div>
+        <div style="height:320px;position:relative"><canvas id="radarChart"></canvas></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title"><span class="dot" style="background:var(--peach)"></span>Điểm mạnh cốt lõi</div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px" id="strength-bars"></div>
+      </div>
+    </div>
+
+    <!-- 3 PILLARS GRID -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px" class="reveal" style="animation-delay:.1s">
+
+      <!-- PILLAR 1: MARCOM MANAGEMENT -->
+      <div class="chart-panel" style="padding:28px 24px">
+        <div class="chart-title" style="margin-bottom:20px"><span class="dot"></span>Marcom Management</div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="pillar1"></div>
+      </div>
+
+      <!-- PILLAR 2: EXECUTION -->
+      <div class="chart-panel" style="padding:28px 24px">
+        <div class="chart-title" style="margin-bottom:20px"><span class="dot" style="background:var(--peach)"></span>Marketing Execution</div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="pillar2"></div>
+      </div>
+
+      <!-- PILLAR 3: OPERATIONS -->
+      <div class="chart-panel" style="padding:28px 24px">
+        <div class="chart-title" style="margin-bottom:20px"><span class="dot" style="background:rgba(255,255,255,.35)"></span>Operations & Systems</div>
+        <div style="display:flex;flex-direction:column;gap:10px" id="pillar3"></div>
+      </div>
+    </div>
+
+    <!-- SYSTEMS BUILT — timeline loại ngang -->
+    <div class="chart-panel reveal" style="animation-delay:.2s;padding:32px">
+      <div class="chart-title" style="margin-bottom:24px"><span class="dot" style="background:var(--accent-soft)"></span>Hệ thống đã xây dựng tại TP Solar (2025)</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)">
+        <div class="sys-card" data-icon="⚙" data-title="Vận hành" data-items="Quy trình, SOP,Timeline & Checklist,Báo cáo ngày/ tuần/ tháng,Dashboard theo dõi"></div>
+        <div class="sys-card" data-icon="👥" data-title="Nhân sự" data-items="Cơ cấu Content-Media-Design,Mô tả công việc & KPIs,Khung năng lực,Form đánh giá"></div>
+        <div class="sys-card" data-icon="📊" data-title="Báo cáo & Data" data-items="Báo cáo vận hành,Báo cáo quản trị,KPI theo mục tiêu KD,Marketing Funnel"></div>
+        <div class="sys-card" data-icon="🎯" data-title="Chiến lược" data-items="6P Marketing Mix,Tái định vị thương hiệu,Brand Guideline,KOC/ KOL Ecosystem,IMC Plan"></div>
+      </div>
+    </div>
+
+    <!-- CAREER MAP: Industries -->
+    <div class="chart-panel reveal" style="animation-delay:.25s;padding:32px;margin-top:20px">
+      <div class="chart-title" style="margin-bottom:24px"><span class="dot" style="background:var(--peach)"></span>Hành trình ngành nghề · 5+ năm</div>
+      <div style="display:flex;align-items:flex-start;gap:0;overflow-x:auto" id="career-timeline"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-name">Vũ <span class="accent">Bích</span><br>Hằng<span style="color:var(--accent)">.</span></div>
+        <div class="footer-sub mono">Marketing Manager · </div>
+        <div class="footer-links">
+          <a href="mailto:hangvu0200@gmail.com" class="footer-link primary">→ hangvu0200@gmail.com</a>
+          <a href="tel:0865918400" class="footer-link">0865918400</a>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--mute);line-height:2">
+          <div>Doanh thu 2025: 115.2B</div>
+          <div>KOC: 450 đối tác</div>
+          <div>Team: 15+ nhân sự</div>
+          <div>Growth: +106%</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copy mono">© 2025 Vũ Bích Hằng · Portfolio</div>
+  </div>
+</footer>
+
+<script>
+// Cursor spot
+const spot = document.getElementById('spot');
+window.addEventListener('mousemove', e => {
+  spot.style.transform = `translate(${e.clientX - 320}px, ${e.clientY - 320}px)`;
+});
+
+// HUD time
+const hudTime = document.getElementById('hud-time');
+function updateTime() {
+  const now = new Date();
+  hudTime.textContent = now.toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+updateTime(); setInterval(updateTime, 1000);
+
+// Marquee
+const marqueeData = [
+  {label:'Doanh thu 2025', val:'115.2B VNĐ', up:true},
+  {label:'TikTok Shop', val:'+183%', up:true},
+  {label:'Shopee', val:'+261%', up:true},
+  {label:'KOC Partners', val:'450', up:true},
+  {label:'Brand Impressions', val:'185.3M', up:true},
+  {label:'CR TikTok', val:'4.75%', up:true},
+  {label:'Đơn hàng 2025', val:'76.5K', up:true},
+  {label:'KOS thường xuyên', val:'80', up:true},
+  {label:'Total Views', val:'190M', up:true},
+  {label:'Retention Rate', val:'35%', up:true},
+];
+const marq = document.getElementById('marquee');
+const items = [...marqueeData, ...marqueeData].map(d =>
+  `<div class="marquee-item"><span>${d.label}</span><b class="${d.up?'up':'down'}">${d.val}</b></div>`
+).join('<span class="marquee-sep">·</span>');
+marq.innerHTML = items;
+
+// Number counter
+function animateNumber(el) {
+  const target = parseFloat(el.dataset.target);
+  const isFloat = target % 1 !== 0;
+  let start = null;
+  const duration = 1500;
+  function step(ts) {
+    if (!start) start = ts;
+    const p = Math.min((ts - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const current = target * ease;
+    el.textContent = isFloat ? current.toFixed(1) : Math.round(current);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// KOC timeline data
+const kocData = [
+  {month:'T4/2025', gmv:3.2, video:1.8, live:1.4, cp:'~120M', maxGmv:8.46},
+  {month:'T5/2025', gmv:4.1, video:2.2, live:1.9, cp:'~160M', maxGmv:8.46},
+  {month:'T6/2025', gmv:6.06, video:3.75, live:2.30, cp:'276M', maxGmv:8.46},
+  {month:'T7/2025', gmv:6.50, video:4.29, live:2.20, cp:'282M', maxGmv:8.46},
+  {month:'T8/2025', gmv:6.70, video:3.65, live:3.05, cp:'251M', maxGmv:8.46},
+  {month:'T9/2025', gmv:8.24, video:3.88, live:4.37, cp:'277M', maxGmv:8.46},
+  {month:'T10/2025', gmv:8.46, video:3.74, live:4.72, cp:'242M', maxGmv:8.46},
+];
+const kocRows = document.getElementById('koc-rows');
+kocData.forEach(d => {
+  const pctVideo = (d.video / d.maxGmv * 100).toFixed(1);
+  const pctLive = (d.live / d.maxGmv * 100).toFixed(1);
+  kocRows.innerHTML += `
+    <div class="koc-row">
+      <div class="koc-month">${d.month}</div>
+      <div>
+        <div class="koc-bar-wrap" style="position:relative;height:4px">
+          <div class="koc-bar-video" style="width:0%;position:absolute;top:0;left:0;height:100%" data-w="${pctVideo}"></div>
+          <div class="koc-bar-live" style="width:0%;position:absolute;top:0;left:${pctVideo}%;height:100%" data-w="${pctLive}"></div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--mute-2);margin-top:5px">
+          <span style="color:var(--accent)">Video ${d.video}B</span> · <span style="color:var(--peach)">Live ${d.live}B</span>
+        </div>
+      </div>
+      <div class="koc-gmv">${d.gmv}B</div>
+      <div class="koc-cp">${d.cp}</div>
+    </div>`;
+});
+
+// Scroll reveal + animate bars
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // animate numbers inside
+      e.target.querySelectorAll('.num-count').forEach(n => animateNumber(n));
+      // animate bars
+      e.target.querySelectorAll('[data-w]').forEach(b => {
+        setTimeout(() => b.style.width = b.dataset.w + '%', 200);
+      });
+      io.unobserve(e.target);
+    }
+  });
+}, {threshold: 0.12});
+reveals.forEach(r => io.observe(r));
+// Also observe dynamically added KOC rows
+setTimeout(() => {
+  document.querySelectorAll('[data-w]').forEach(b => {
+    const rowIo = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          setTimeout(() => b.style.width = b.dataset.w + '%', 200);
+          rowIo.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.1});
+    rowIo.observe(b);
+  });
+}, 300);
+
+// CHARTS
+const chartDefaults = {
+  color: 'rgba(231,233,238,.55)',
+  borderColor: 'rgba(255,255,255,.07)',
+};
+Chart.defaults.color = chartDefaults.color;
+
+// Revenue
+new Chart(document.getElementById('revenueChart'), {
+  type: 'bar',
+  data: {
+    labels: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
+    datasets: [{
+      label: 'Doanh thu (tỷ)',
+      data: [6.39, 4.10, 7.80, 7.81, 10.49, 9.97, 10.00, 10.20, 11.08, 12.13, 12.05, 13.15],
+      backgroundColor: ctx => {
+        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
+        g.addColorStop(0, 'rgba(126,200,227,.7)');
+        g.addColorStop(1, 'rgba(126,200,227,.1)');
+        return g;
+      },
+      borderColor: '#7ec8e3',
+      borderWidth: 1,
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: {display:false}, tooltip: {callbacks:{label: c => ` ${c.raw}B VNĐ`}} },
+    scales: {
+      x: {grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'rgba(231,233,238,.4)',font:{family:'JetBrains Mono',size:10}}},
+      y: {grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'rgba(231,233,238,.4)',font:{family:'JetBrains Mono',size:10},callback: v => v+'B'}, beginAtZero:true}
+    }
+  }
+});
+
+// Channel trend
+new Chart(document.getElementById('channelChart'), {
+  type: 'line',
+  data: {
+    labels: ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'],
+    datasets: [
+      {
+        label: 'TikTok Shop',
+        data: [2.3,1.5,3.1,3.2,4.4,4.5,4.7,4.9,5.2,5.8,6.1,6.5],
+        borderColor: '#7ec8e3', backgroundColor:'rgba(126,200,227,.08)', fill:true, tension:.4, borderWidth:2, pointRadius:2
+      },{
+        label: 'Shopee',
+        data: [0.75,0.5,0.9,0.95,1.2,1.5,1.8,2.0,2.2,2.5,2.6,2.7],
+        borderColor: '#f2a97e', backgroundColor:'rgba(242,169,126,.07)', fill:true, tension:.4, borderWidth:2, pointRadius:2
+      }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position:'bottom', labels:{color:'rgba(231,233,238,.5)',boxWidth:10,font:{family:'JetBrains Mono',size:10}} } },
+    scales: {
+      x: {grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'rgba(231,233,238,.4)',font:{family:'JetBrains Mono',size:10}}},
+      y: {grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'rgba(231,233,238,.4)',font:{family:'JetBrains Mono',size:10},callback: v => v+'B'}}
+    }
+  }
+});
+
+// Donut
+new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['TikTok Shop','Social','Shopee','B2B+Dự án'],
+    datasets: [{
+      data: [55.8, 27.8, 19.0, 12.5],
+      backgroundColor: ['rgba(126,200,227,.8)','rgba(242,169,126,.8)','rgba(249,115,22,.7)','rgba(255,255,255,.15)'],
+      borderColor: '#08090b',
+      borderWidth: 3,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout:'68%',
+    plugins: {
+      legend: { position:'right', labels:{color:'rgba(231,233,238,.5)',boxWidth:10,padding:12,font:{family:'JetBrains Mono',size:10}} },
+      tooltip: { callbacks: { label: c => ` ${c.label}: ${c.raw}B (${(c.raw/115.1*100).toFixed(1)}%)` } }
+    }
+  }
+});
+
+
+// BUILD PILLAR ITEMS
+function buildPillar(id, items, color) {
+  const el = document.getElementById(id);
+  items.forEach(([text, tag]) => {
+    el.innerHTML += `<div class="pillar-item">
+      <div class="pillar-dot" style="background:${color}"></div>
+      <div><div class="pillar-text">${text}</div><div class="pillar-tag">${tag}</div></div>
+    </div>`;
+  });
+}
+
+buildPillar('pillar1', [
+  ['Lập kế hoạch chiến lược Marketing tháng/quý/năm', 'Strategy'],
+  ['Xây dựng 6P Marketing Mix & tái định vị thương hiệu', 'Brand Strategy'],
+  ['Quản lý ngân sách & phân bổ hiệu quả theo kênh', 'Budget Mgmt'],
+  ['Quản lý đội ngũ: cơ cấu, KPI, đánh giá, tuyển dụng', 'Team Leadership'],
+  ['IMC Plan & Campaign Management đa kênh', 'IMC'],
+  ['PR, KOL/KOC Management, Brand Guideline', 'Brand Ops'],
+], 'var(--accent)');
+
+buildPillar('pillar2', [
+  ['Content Strategy & Social Media Content', 'Content'],
+  ['Copywriting, Storytelling, Video Production', 'Creative'],
+  ['Digital Marketing: Facebook Ads, TikTok Ads', 'Paid Media'],
+  ['KOC Ecosystem: booking, tracking, optimize', 'Influencer MKT'],
+  ['Nghiên cứu thị trường & phân tích hành vi KH', 'Research'],
+  ['Phân tích dữ liệu, đo lường hiệu quả chiến dịch', 'Analytics'],
+], 'var(--peach)');
+
+buildPillar('pillar3', [
+  ['Chuẩn hóa quy trình, SOP, checklist vận hành', 'Process'],
+  ['Xây dựng hệ thống báo cáo ngày/tuần/tháng', 'Reporting'],
+  ['Quản lý dự án (Gift box, campaign, launching)', 'Project Mgmt'],
+  ['Xây dựng khung năng lực & đánh giá nhân sự', 'HR System'],
+  ['Quản trị khủng hoảng truyền thông', 'Crisis Mgmt'],
+  ['AI in Marketing, UI/UX, Consumer behavior', 'Digital Trends'],
+], 'rgba(255,255,255,.35)');
+
+// STRENGTH BARS
+const strengths = [
+  {name:'Brand & Marcom Strategy', pct:90, color:'var(--accent)'},
+  {name:'Team Leadership & Operations', pct:88, color:'var(--accent)'},
+  {name:'KOC/KOL Ecosystem Management', pct:92, color:'var(--peach)'},
+  {name:'Content & Creative Direction', pct:85, color:'var(--accent)'},
+  {name:'Performance Marketing', pct:78, color:'var(--peach)'},
+  {name:'Data Analysis & Reporting', pct:80, color:'var(--accent)'},
+];
+const sbEl = document.getElementById('strength-bars');
+strengths.forEach(s => {
+  sbEl.innerHTML += `<div class="skill-row">
+    <div class="skill-row-top">
+      <span class="skill-name">${s.name}</span>
+      <span class="skill-pct">${s.pct}%</span>
+    </div>
+    <div class="skill-bar-bg">
+      <div class="skill-bar-fill" data-w="${s.pct}" style="background:${s.color}"></div>
+    </div>
+  </div>`;
+});
+
+// BUILD SYS CARDS
+document.querySelectorAll('.sys-card').forEach(card => {
+  const icon = card.dataset.icon;
+  const title = card.dataset.title;
+  const items = card.dataset.items.split(',');
+  card.innerHTML = `<div class="sys-icon">${icon}</div>
+    <div class="sys-title">${title}</div>
+    <div class="sys-items">${items.map(i => `<div class="sys-item">${i.trim()}</div>`).join('')}</div>`;
+});
+
+// CAREER TIMELINE
+const careers = [
+  {year:'2020–2021', co:'PinkPlus Cosmetic', role:'Sales & Content', industry:'Beauty / Retail'},
+  {year:'2021–2022', co:'Wedding & Education', role:'Content Marketing', industry:'Events / Education'},
+  {year:'2022–2025', co:'Lason Việt Nam', role:'Marketing Manager', industry:'Retail Lifestyle'},
+  {year:'2025–Now', co:'TP Solar', role:'Marcom Manager', industry:'Home Energy / Tech'},
+];
+const ct = document.getElementById('career-timeline');
+careers.forEach(c => {
+  ct.innerHTML += `<div class="ct-item">
+    <div class="ct-year">${c.year}</div>
+    <div class="ct-co">${c.co}</div>
+    <div class="ct-role">${c.role}</div>
+    <div class="ct-industry">${c.industry}</div>
+  </div>`;
+});
+
+// RADAR CHART
+new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: {
+    labels: ['Brand Strategy','Team Leadership','KOC / KOL','Content & Creative','Performance MKT','Data & Analytics','Process & Ops','Project Mgmt'],
+    datasets: [{
+      label: 'Năng lực',
+      data: [90, 88, 92, 85, 78, 80, 86, 84],
+      backgroundColor: 'rgba(126,200,227,.12)',
+      borderColor: 'rgba(126,200,227,.7)',
+      borderWidth: 1.5,
+      pointBackgroundColor: '#7ec8e3',
+      pointRadius: 3,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: {display:false} },
+    scales: {
+      r: {
+        min: 60, max: 100,
+        grid: {color:'rgba(255,255,255,.06)'},
+        angleLines: {color:'rgba(255,255,255,.06)'},
+        pointLabels: {color:'rgba(231,233,238,.5)', font:{family:'JetBrains Mono', size:9.5}},
+        ticks: {display:false}
+      }
+    }
+  }
+});
+
+</script>
